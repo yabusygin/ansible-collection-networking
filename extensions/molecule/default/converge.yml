@@ -1,0 +1,38 @@
+---
+- name: Converge
+  hosts: instance
+  gather_facts: false
+  tasks:
+    - name: Install test dependencies
+      ansible.builtin.apt:
+        name:
+          - iputils-ping
+          # Fixes Netplan failure. The following exception is thrown on
+          # "netplan apply" command execution:
+          # FileNotFoundError: [Errno 2] No such file or directory: 'udevadm'
+          - udev
+        state: present
+        update_cache: true
+
+    - name: Add unmanaged Netplan configuration
+      tags:
+        - molecule-idempotence-notest
+      block:
+        - name: Create Netplan configuration directory
+          ansible.builtin.file:
+            path: /etc/netplan
+            state: directory
+            mode: u=rwx,g=rx,o=rx
+
+        - name: Add unmanaged Netplan configuration file
+          ansible.builtin.copy:
+            src: unmanaged.yml
+            dest: /etc/netplan/unmanaged.yaml
+            mode: u=rw,g=r,o=r
+
+    - name: Configure Netplan
+      ansible.builtin.import_role:
+        name: yabusygin.networking.netplan
+      vars:
+        netplan_config: netplan.yml.jinja
+        netplan_config_bridge_address: 192.168.101.1

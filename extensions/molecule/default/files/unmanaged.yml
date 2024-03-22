@@ -1,0 +1,8 @@
+---
+network:
+  version: 2
+  renderer: networkd
+  bridges:
+    br_unmanaged:
+      addresses:
+        - 192.168.255.255/32
