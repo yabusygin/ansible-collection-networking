@@ -1,0 +1,24 @@
+---
+namespace: yabusygin
+name: networking
+version: 0.1.0
+readme: README.md
+authors:
+  - Alexey Busygin <yabusygin@gmail.com>
+description: Configure networking.
+license_file: LICENSE
+tags:
+  - networking
+  - netplan
+repository: https://github.com/yabusygin/ansible-collection-networking
+issues: https://github.com/yabusygin/ansible-collection-networking/issues
+build_ignore:
+  - requirements.txt
+  - requirements.dev.txt
+  - test.sh
+  - extensions
+  - .config
+  - .github
+  - .gitignore
+  - .python-version
+  - .venv

@@ -1,0 +1,3 @@
+---
+netplan_remove_unmanaged_configs: true
+netplan_config_template_lstrip_blocks: true

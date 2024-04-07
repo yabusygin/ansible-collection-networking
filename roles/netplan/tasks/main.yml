@@ -1,0 +1,46 @@
+---
+- name: Install Netplan
+  ansible.builtin.apt:
+    name:
+      - netplan.io
+    state: present
+    force_apt_get: true
+    update_cache: true
+
+- name: Ensure Netplan configuration directory permissions
+  ansible.builtin.file:
+    path: /etc/netplan
+    state: directory
+    mode: u=rwx,g=,o=
+
+- name: Set Netplan configuration
+  ansible.builtin.template:
+    src: "{{ netplan_config }}"
+    dest: /etc/netplan/00-config.yaml
+    lstrip_blocks: "{{ netplan_config_template_lstrip_blocks }}"
+    mode: u=rw,g=,o=
+  notify:
+    - Apply Netplan configuration
+
+- name: Remove Netplan configuration that is not managed by the role
+  when: netplan_remove_unmanaged_configs
+  block:
+    - name: Find Netplan configuration that is not managed by the role
+      ansible.builtin.find:
+        paths:
+          - /etc/netplan
+        recurse: false
+        file_type: file
+        patterns:
+          - "*.yaml"
+        exclude:
+          - 00-config.yaml
+      register: _result
+
+    - name: "Remove configuration file: {{ item }}"
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop: "{{ _result.files | map(attribute='path') }}"
+      notify:
+        - Apply Netplan configuration

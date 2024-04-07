@@ -1,0 +1,37 @@
+---
+- name: Verify
+  hosts: instance
+  gather_facts: false
+  tasks:
+    - name: Check that unmanaged Netplan configuration is removed
+      block:
+        - name: Find unmanaged Netplan configuration
+          ansible.builtin.find:
+            paths:
+              - /etc/netplan
+            recurse: false
+            file_type: file
+            patterns:
+              - "*.yaml"
+            exclude:
+              - 00-config.yaml
+          register: _result
+
+        - name: Check that unmanaged Netplan configuration is not found
+          ansible.builtin.assert:
+            that: _result.files | length == 0
+
+    - name: Check Netplan configuration permissions
+      block:
+        - name: Get Netplan configuration file metadata
+          ansible.builtin.stat:
+            path: /etc/netplan/00-config.yaml
+          register: _result
+
+        - name: Check that Netplan configuration is owner read-write only
+          ansible.builtin.assert:
+            that: _result.stat.mode == "0600"
+
+    - name: Ping bridge interface
+      ansible.builtin.command: ping -c 3 192.168.101.1
+      changed_when: false

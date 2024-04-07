@@ -1,0 +1,11 @@
+---
+galaxy_info:
+  author: Alexey Busygin
+  description: Configure Netplan
+  license: MIT
+  min_ansible_version: "2.16"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - focal
+        - jammy
